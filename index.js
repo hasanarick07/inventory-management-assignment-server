@@ -26,9 +26,9 @@ async function run() {
     });
     // Get by specific email
     app.get("/products", async (req, res) => {
-      const email = req.query;
-      console.log(email);
-      const products = await productCollection.find({}).toArray();
+      const email = req.query.email;
+      const query = { email: email };
+      const products = await productCollection.find(query).toArray();
       res.send(products);
     });
     app.post("/products", async (req, res) => {
