@@ -20,15 +20,17 @@ async function run() {
     const productCollection = client
       .db("biker-inventory")
       .collection("product");
-    app.get("/products", async (req, res) => {
-      const products = await productCollection.find({}).toArray();
-      res.send(products);
-    });
     // Get by specific email
     app.get("/products", async (req, res) => {
       const email = req.query.email;
       const query = { email: email };
+      console.log("hi", req.query);
       const products = await productCollection.find(query).toArray();
+      res.send(products);
+    });
+    app.get("/products", async (req, res) => {
+      console.log("ok");
+      const products = await productCollection.find({}).toArray();
       res.send(products);
     });
     app.post("/products", async (req, res) => {
