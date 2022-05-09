@@ -24,6 +24,12 @@ async function run() {
       const products = await productCollection.find({}).toArray();
       res.send(products);
     });
+    // Get by specific email
+    app.get("/products", async (req, res) => {
+      const email = req.query.email;
+      const products = await productCollection.find({}).toArray();
+      res.send(products);
+    });
     app.post("/products", async (req, res) => {
       const result = await productCollection.insertOne(req.body);
       res.send(result);
