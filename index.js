@@ -6,6 +6,21 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 app.use(cors());
 app.use(express.json());
 const port = process.env.PORT || 5000;
+const jsonwebtoken = require("jsonwebtoken");
+
+function verifyjsonwebtoken(req, res, next) {
+  const authHeader = req.headers.authorization;
+
+  const token = authHeader.split(" ")[1];
+  jsonwebtoken.verify(
+    token,
+    process.env.ACCESS_TOKEN_SECRET,
+    (err, decoded) => {
+      req.decoded = decoded;
+      next();
+    }
+  );
+}
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.uqsst.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
@@ -20,13 +35,24 @@ async function run() {
     const productCollection = client
       .db("biker-inventory")
       .collection("product");
+
+    // jsonwebtoken authentication
+    app.post("/login", async (req, res) => {
+      const user = req.body;
+      const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "30d",
+      });
+      res.send({ accessToken });
+    });
     // Get by specific email
-    app.get("/myProducts", async (req, res) => {
+    app.get("/myProducts", verifyjsonwebtoken, async (req, res) => {
+      const decodedEmail = req.decoded.email;
       const email = req.query.email;
-      const query = { email: email };
-      // console.log("hi", req.query);
-      const products = await productCollection.find(query).toArray();
-      res.send(products);
+      if (email === decodedEmail) {
+        const query = { email: email };
+        const products = await productCollection.find(query).toArray();
+        res.send(products);
+      }
     });
     app.get("/products", async (req, res) => {
       // console.log("ok");
