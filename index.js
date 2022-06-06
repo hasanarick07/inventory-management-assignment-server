@@ -11,7 +11,7 @@ const jsonwebtoken = require("jsonwebtoken");
 
 function verifyjsonwebtoken(req, res, next) {
   const authHeader = req.headers.authorization;
-  
+
   const token = authHeader.split(" ")[1];
   jsonwebtoken.verify(
     token,
@@ -53,10 +53,10 @@ async function run() {
     app.get("/myProducts", async (req, res) => {
       const decodedEmail = req.decoded.email;
       const email = req.query.email;
+      const query = { email: email };
+      const products = await productCollection.find(query).toArray();
+      res.send(products);
       if (email === decodedEmail) {
-        const query = { email: email };
-        const products = await productCollection.find(query).toArray();
-        res.send(products);
       }
     });
     app.get("/products", async (req, res) => {
