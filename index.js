@@ -11,7 +11,7 @@ const jsonwebtoken = require("jsonwebtoken");
 
 function verifyjsonwebtoken(req, res, next) {
   const authHeader = req.headers.authorization;
-
+  
   const token = authHeader.split(" ")[1];
   jsonwebtoken.verify(
     token,
@@ -40,13 +40,17 @@ async function run() {
     // jsonwebtoken authentication
     app.post("/login", async (req, res) => {
       const user = req.body;
-      const accessToken = jsonwebtoken.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "30d",
-      });
+      const accessToken = jsonwebtoken.sign(
+        user,
+        process.env.ACCESS_TOKEN_SECRET,
+        {
+          expiresIn: "30d",
+        }
+      );
       res.send({ accessToken });
     });
     // Get by specific email
-    app.get("/myProducts", verifyjsonwebtoken, async (req, res) => {
+    app.get("/myProducts", async (req, res) => {
       const decodedEmail = req.decoded.email;
       const email = req.query.email;
       if (email === decodedEmail) {
